@@ -2,71 +2,95 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+// typedef creates an alias for the struct data type
 typedef struct TrieNode {
 
-    struct TrieNode* children[26];
+  // Array of 26 pointers.
+  // Each pointer can point to another TrieNode.
+  // One position is used for each lowercase letter (a-z).
+  struct TrieNode* children[26];
 
-    bool isLeaf;
+  // Tells us whether a complete word ends at this node.
+  bool isLeaf;
 
 } TrieNode;
 
-
-// Create a new Trie node
 TrieNode* createNode() {
 
-    TrieNode* node = malloc(sizeof(TrieNode));
+  // Allocate memory for one TrieNode
+  TrieNode* node = malloc(sizeof(TrieNode));
 
-    node->isLeaf = false;
+  // Initially, no word ends at this node
+  node->isLeaf = false;
 
-    for (int i = 0; i < 26; i++) {
-        node->children[i] = NULL;
-    }
+  // Initially, this node has no child nodes.
+  // Set all 26 child pointers to NULL.
+  for (int i = 0; i < 26; i++) {
+    node->children[i] = NULL;
+  }
 
     return node;
 }
 
+void Insert(TrieNode* root, const char* word){ 
+    // word is a pointer to the first character of the string.
+    // const means we do not modify the original string.
 
-// Insert a word into the Trie
-void Insert(TrieNode* root, const char* word) {
+    // current keeps track of the node we are currently at.
+    TrieNode* current = root; 
+ 
+    while(*word != '\0'){ 
 
-    TrieNode* current = root;
+    // Convert the current character into an index from 0 to 25.
+    // For example: 'a' - 'a' = 0, 'b' - 'a' = 1, 'c' - 'a' = 2.
+    int i = *word - 'a'; 
+ 
+    // If there is no node for this character from the current node,
+    // create a new node.
+    if(current -> children[i] == NULL){ 
+      current -> children[i] = createNode(); 
+    } 
 
-    while (*word != '\0') {
+    // Move current to the node corresponding to this character.
+    current = current -> children[i]; 
+ 
+    // Move word to the next character in the string.
+    word++; 
+    } 
 
-        int i = *word - 'a';
-
-        if (current->children[i] == NULL) {
-            current->children[i] = createNode();
-        }
-
-        current = current->children[i];
-
-        word++;
-    }
-
-    current->isLeaf = true;
+    // We have reached the end of the word,
+    // so mark this node as the end of a complete word.
+    current -> isLeaf = true; 
 }
 
 
-// Search for an exact word
 bool Search(TrieNode* root, const char* word) {
 
-    TrieNode* current = root;
+  // current keeps track of the node we are currently at.
+  TrieNode* current = root; 
+ 
+  while(*word != '\0'){ 
 
-    while (*word != '\0') {
+  // Convert the current character into an index from 0 to 25.
+  // For example: 'a' - 'a' = 0, 'b' - 'a' = 1, 'c' - 'a' = 2.
+  int i = *word - 'a'; 
+ 
+  // If there is no node for this character,
+  // the word does not exist in the Trie.
+  if(current -> children[i] == NULL){ 
+    return false; 
+  } 
 
-        int i = *word - 'a';
+  // Move current to the node corresponding to this character.
+  current = current -> children[i]; 
 
-        if (current->children[i] == NULL) {
-            return false;
-        }
+  // Move word to the next character in the string.
+  word++; 
+    } 
 
-        current = current->children[i];
-
-        word++;
-    }
-
-    return current->isLeaf;
+  // If isLeaf is true, a complete word ends at this node.
+  // Otherwise, the given word is only a prefix of another word.
+  return current -> isLeaf; 
 }
 
 
