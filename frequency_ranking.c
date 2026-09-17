@@ -1,7 +1,8 @@
+```c
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "trie.h"
+#include "frequency_ranking.h"
 
 
 // =====================================================
@@ -58,7 +59,6 @@ void addWord(const char* word)
     if (frequencyCount < 1000)
     {
         strcpy(frequencyList[frequencyCount].word, word);
-
         frequencyList[frequencyCount].frequency = 0;
 
         frequencyCount++;
@@ -78,7 +78,6 @@ void increaseFrequency(const char* word)
     if (index == -1)
     {
         addWord(word);
-
         index = frequencyCount - 1;
     }
 
@@ -107,13 +106,10 @@ int getFrequency(const char* word)
 // COMPARE WORDS FOR RANKING
 // =====================================================
 
-int compareFrequency(
-    const void* a,
-    const void* b
-)
+int compareFrequency(const void* a, const void* b)
 {
-    WordFrequency* wordA = (WordFrequency*)a;
-    WordFrequency* wordB = (WordFrequency*)b;
+    const WordFrequency* wordA = (const WordFrequency*)a;
+    const WordFrequency* wordB = (const WordFrequency*)b;
 
     // Higher frequency comes first
     if (wordA->frequency != wordB->frequency)
@@ -131,7 +127,7 @@ int compareFrequency(
 // RANK WORDS
 // =====================================================
 
-void rankWords()
+void rankWords(void)
 {
     qsort(
         frequencyList,
@@ -146,7 +142,7 @@ void rankWords()
 // DISPLAY FREQUENCY
 // =====================================================
 
-void displayFrequency()
+void displayFrequency(void)
 {
     printf("\n====================================\n");
     printf("WORD FREQUENCY\n");
@@ -167,22 +163,10 @@ void displayFrequency()
 // DISPLAY RANKING
 // =====================================================
 
-void displayRanking()
+void displayRanking(void)
 {
     rankWords();
 
     printf("\n====================================\n");
-    printf("WORD RANKING\n");
-    printf("====================================\n");
-
-    for (int i = 0; i < frequencyCount; i++)
-    {
-        printf(
-            "%d. %s (frequency: %d)\n",
-            i + 1,
-            frequencyList[i].word,
-            frequencyList[i].frequency
-        );
-    }
-}
-    
+    print
+```
