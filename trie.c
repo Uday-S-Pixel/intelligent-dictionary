@@ -80,15 +80,4 @@ bool Search(TrieNode* root, const char* word) {
   return current -> isLeaf; 
 }
 
-int main(){
-  TrieNode* root = createNode();
-  Insert(root,"cat");
-  Insert(root,"car");
-  Insert(root,"cafe");
- 
-  printf("cat: %d\n", Search(root, "cat"));
-  printf("car: %d\n", Search(root, "car"));
-  printf("cafe: %d\n", Search(root, "cafe"));
 
-  return 0;
-}
