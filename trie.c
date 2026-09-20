@@ -1,20 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-
-// typedef creates an alias for the struct data type
-typedef struct TrieNode {
-
-  // Array of 26 pointers.
-  // Each pointer can point to another TrieNode.
-  // One position is used for each lowercase letter (a-z).
-  struct TrieNode* children[26];
-
-  // Tells us whether a complete word ends at this node.
-  bool isLeaf;
-
-} TrieNode;
-
+#include "trie.h"
 
 TrieNode* createNode() {
 
@@ -22,12 +9,13 @@ TrieNode* createNode() {
   TrieNode* node = malloc(sizeof(TrieNode));
 
   // Initially, no word ends at this node
-  node->isLeaf = false;
+  node -> isLeaf = false;
+  node -> frequency = 0;
 
   // Initially, this node has no child nodes.
   // Set all 26 child pointers to NULL.
   for (int i = 0; i < 26; i++) {
-    node->children[i] = NULL;
+    node -> children[i] = NULL;
   }
 
     return node;
@@ -90,18 +78,35 @@ bool Search(TrieNode* root, const char* word) {
 
   // If isLeaf is true, a complete word ends at this node.
   // Otherwise, the given word is only a prefix of another word.
-  return current -> isLeaf; 
+  if(current -> isLeaf){
+    current -> frequency++;
+    return true;
+  }
+  return false;
 }
 
-int main(){
-  TrieNode* root = createNode();
-  Insert(root,"cat");
-  Insert(root,"car");
-  Insert(root,"cafe");
- 
-  printf("cat: %d\n", Search(root, "cat"));
-  printf("car: %d\n", Search(root, "car"));
-  printf("cafe: %d\n", Search(root, "cafe"));
+int getFrequency(TrieNode* root, const char* word)
+{
+    TrieNode* current = root;
 
-  return 0;
+    while (*word != '\0')
+    {
+        int i = *word - 'a';
+
+        if (current->children[i] == NULL)
+        {
+            return 0;
+        }
+
+        current = current->children[i];
+        word++;
+    }
+
+    if (current->isLeaf)
+    {
+        return current->frequency;
+    }
+
+    return 0;
 }
+
