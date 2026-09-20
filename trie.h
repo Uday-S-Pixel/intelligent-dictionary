@@ -6,6 +6,7 @@
 typedef struct TrieNode {
     struct TrieNode* children[26];
     bool isLeaf;
+    int frequency;
 } TrieNode;
 
 TrieNode* createNode(void);
@@ -13,5 +14,7 @@ TrieNode* createNode(void);
 void Insert(TrieNode* root, const char* word);
 
 bool Search(TrieNode* root, const char* word);
+
+int getFrequency(TrieNode* root, const char* word);
 
 #endif
