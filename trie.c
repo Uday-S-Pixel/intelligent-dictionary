@@ -83,7 +83,6 @@ bool Search(TrieNode* root, const char* word) {
     return true;
   }
   return false;
-}
 
 int getFrequency(TrieNode* root, const char* word)
 {
@@ -109,4 +108,3 @@ int getFrequency(TrieNode* root, const char* word)
 
     return 0;
 }
-
