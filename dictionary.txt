@@ -1,0 +1,14 @@
+app
+apple
+application
+apply
+appetite
+banana
+ball
+bat
+cat
+car
+care
+cattle
+dog
+door
