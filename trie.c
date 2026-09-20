@@ -9,12 +9,13 @@ TrieNode* createNode() {
   TrieNode* node = malloc(sizeof(TrieNode));
 
   // Initially, no word ends at this node
-  node->isLeaf = false;
+  node -> isLeaf = false;
+  node -> frequency = 0;
 
   // Initially, this node has no child nodes.
   // Set all 26 child pointers to NULL.
   for (int i = 0; i < 26; i++) {
-    node->children[i] = NULL;
+    node -> children[i] = NULL;
   }
 
     return node;
@@ -77,7 +78,33 @@ bool Search(TrieNode* root, const char* word) {
 
   // If isLeaf is true, a complete word ends at this node.
   // Otherwise, the given word is only a prefix of another word.
-  return current -> isLeaf; 
+  if(current -> isLeaf){
+    current -> frequency++;
+    return true;
+  }
+  return false;
+
+int getFrequency(TrieNode* root, const char* word)
+{
+    TrieNode* current = root;
+
+    while (*word != '\0')
+    {
+        int i = *word - 'a';
+
+        if (current->children[i] == NULL)
+        {
+            return 0;
+        }
+
+        current = current->children[i];
+        word++;
+    }
+
+    if (current->isLeaf)
+    {
+        return current->frequency;
+    }
+
+    return 0;
 }
-
-
