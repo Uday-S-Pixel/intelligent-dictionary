@@ -55,6 +55,7 @@ TrieNode* PrefixSearch(TrieNode* root, const char* prefix)
 // =====================================================
 
 void AutoCompleteHelper(
+    TrieNode* root;
     TrieNode* node,
     char* word,
     int level
@@ -75,7 +76,7 @@ void AutoCompleteHelper(
 
             // Store frequency
             suggestions[suggestionCount].frequency =
-                getFrequency(word);
+                getFrequency(root,word);
 
             suggestionCount++;
         }
@@ -90,6 +91,7 @@ void AutoCompleteHelper(
             word[level] = 'a' + i;
 
             AutoCompleteHelper(
+                root;
                 node->children[i],
                 word,
                 level + 1
@@ -163,6 +165,7 @@ void AutoComplete(
 
     // Find all matching words
     AutoCompleteHelper(
+        root;
         prefixNode,
         word,
         level
