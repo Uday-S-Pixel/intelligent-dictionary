@@ -5,7 +5,7 @@
 
 TrieNode* findPrefixNode(TrieNode* root, const char* prefix);
 
-void autocompleteHelper(TrieNode* node, char* word, int level);
+void autocompleteHelper(TrieNode* root,TrieNode* node, char* word, int level);
 
 void autocomplete(TrieNode* root, const char* prefix);
 
