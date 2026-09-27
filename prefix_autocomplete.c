@@ -1,13 +1,36 @@
-
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "prefix_autocomplete.h"
+#include "trie.h"
 
+typedef struct
+{
+    char word[100];
+    int frequency;
 
-// =====================================================
+} WordFrequency;
+
+#define MAX_SUGGESTIONS 1000
+
+WordFrequency suggestions[MAX_SUGGESTIONS];
+
+int suggestionCount = 0;
+
+int compareSuggestions(const void* a, const void* b)
+{
+    const WordFrequency* suggestionA =
+        (const WordFrequency*)a;
+
+    const WordFrequency* suggestionB =
+        (const WordFrequency*)b;
+
+    return suggestionB->frequency -
+           suggestionA->frequency;
+}
+
 // PREFIX SEARCH
-// =====================================================
 
-// Find the Trie node corresponding to a prefix
 TrieNode* findPrefixNode(TrieNode* root, const char* prefix)
 {
     TrieNode* current = root;
@@ -30,23 +53,33 @@ TrieNode* findPrefixNode(TrieNode* root, const char* prefix)
 }
 
 
-// =====================================================
-// AUTOCOMPLETE
-// =====================================================
+// AUTO-COMPLETE HELPER
 
-// Recursively find all words below the prefix node
-void autocompleteHelper(TrieNode* node, char* word, int level)
+void autocompleteHelper(
+    TrieNode* root,
+    TrieNode* node,
+    char* word,
+    int level
+)
 {
-    // If this node represents a complete word
     if (node->isLeaf)
     {
         word[level] = '\0';
 
-        printf("%s\n", word);
+        if (suggestionCount < MAX_SUGGESTIONS)
+        {
+            strcpy(
+                suggestions[suggestionCount].word,
+                word
+            );
+
+            suggestions[suggestionCount].frequency =
+                getFrequency(root, word);
+
+            suggestionCount++;
+        }
     }
 
-
-    // Check all 26 possible characters
     for (int i = 0; i < 26; i++)
     {
         if (node->children[i] != NULL)
@@ -54,6 +87,7 @@ void autocompleteHelper(TrieNode* node, char* word, int level)
             word[level] = 'a' + i;
 
             autocompleteHelper(
+                root,
                 node->children[i],
                 word,
                 level + 1
@@ -63,28 +97,53 @@ void autocompleteHelper(TrieNode* node, char* word, int level)
 }
 
 
-// Main autocomplete function
-void autocomplete(TrieNode* root, const char* prefix)
-{
-    // Find the node corresponding to the prefix
-    TrieNode* prefixNode = findPrefixNode(root, prefix);
+// DISPLAY SUGGESTIONS
 
-    // Prefix does not exist
+void DisplaySuggestions()
+{
+    printf("\n");
+    printf("====================================\n");
+    printf("AUTO-COMPLETE SUGGESTIONS\n");
+    printf("====================================\n");
+
+    for (int i = 0; i < suggestionCount; i++)
+    {
+        printf(
+            "%d. %s (frequency: %d)\n",
+            i + 1,
+            suggestions[i].word,
+            suggestions[i].frequency
+        );
+    }
+}
+
+
+// AUTO-COMPLETE
+
+void autocomplete(
+    TrieNode* root,
+    const char* prefix
+)
+{
+    suggestionCount = 0;
+
+    TrieNode* prefixNode =
+        findPrefixNode(root, prefix);
+
     if (prefixNode == NULL)
     {
-        printf("No words found for prefix \"%s\"\n", prefix);
+        printf(
+            "No words found for prefix \"%s\"\n",
+            prefix
+        );
 
         return;
     }
 
-
-    // Array used to construct complete words
     char word[100];
 
     int level = 0;
 
-
-    // Copy prefix into word array
     while (prefix[level] != '\0')
     {
         word[level] = prefix[level];
@@ -92,14 +151,19 @@ void autocomplete(TrieNode* root, const char* prefix)
         level++;
     }
 
-
-    printf("\nSuggestions for \"%s\":\n", prefix);
-
-    // Find all words starting with this prefix
     autocompleteHelper(
+        root,
         prefixNode,
         word,
         level
     );
+
+    qsort(
+    suggestions,
+    suggestionCount,
+    sizeof(WordFrequency),
+    compareSuggestions
+    );
+
+    DisplaySuggestions();
 }
-```

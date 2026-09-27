@@ -3,7 +3,6 @@
 #include <string.h>
 #include "frequency_ranking.h"
 
-
 // =====================================================
 // FREQUENCY RECORD
 // =====================================================
@@ -82,24 +81,6 @@ void increaseFrequency(const char* word)
 
     frequencyList[index].frequency++;
 }
-
-
-// =====================================================
-// GET WORD FREQUENCY
-// =====================================================
-
-int getFrequency(const char* word)
-{
-    int index = findWord(word);
-
-    if (index == -1)
-    {
-        return 0;
-    }
-
-    return frequencyList[index].frequency;
-}
-
 
 // =====================================================
 // COMPARE WORDS FOR RANKING
