@@ -50,31 +50,6 @@ TrieNode* PrefixSearch(TrieNode* root, const char* prefix)
     return current;
 }
 
-
-// =====================================================
-// GET FREQUENCY
-// =====================================================
-
-// For now, this function returns the frequency
-// of a word.
-//
-// Later, you can connect this function to your
-// Frequency & Ranking module.
-
-int getFrequency(const char* word)
-{
-    /*
-       Frequency module will provide the
-       actual frequency of the word.
-
-       Temporary value:
-       return 0;
-    */
-
-    return 0;
-}
-
-
 // =====================================================
 // AUTO-COMPLETE HELPER
 // =====================================================
