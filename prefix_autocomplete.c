@@ -52,7 +52,6 @@ TrieNode* findPrefixNode(TrieNode* root, const char* prefix)
     return current;
 }
 
-
 // AUTO-COMPLETE HELPER
 
 void autocompleteHelper(
@@ -96,7 +95,6 @@ void autocompleteHelper(
     }
 }
 
-
 // DISPLAY SUGGESTIONS
 
 void DisplaySuggestions()
@@ -116,7 +114,6 @@ void DisplaySuggestions()
         );
     }
 }
-
 
 // AUTO-COMPLETE
 
@@ -159,10 +156,10 @@ void autocomplete(
     );
 
     qsort(
-    suggestions,
-    suggestionCount,
-    sizeof(WordFrequency),
-    compareSuggestions
+        suggestions,
+        suggestionCount,
+        sizeof(WordFrequency),
+        compareSuggestions
     );
 
     DisplaySuggestions();
