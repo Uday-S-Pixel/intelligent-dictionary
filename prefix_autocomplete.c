@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "prefix_autocomplete.h"
 #include "trie.h"
@@ -16,6 +17,17 @@ WordFrequency suggestions[MAX_SUGGESTIONS];
 
 int suggestionCount = 0;
 
+int compareSuggestions(const void* a, const void* b)
+{
+    const WordFrequency* suggestionA =
+        (const WordFrequency*)a;
+
+    const WordFrequency* suggestionB =
+        (const WordFrequency*)b;
+
+    return suggestionB->frequency -
+           suggestionA->frequency;
+}
 
 // PREFIX SEARCH
 
@@ -39,7 +51,6 @@ TrieNode* findPrefixNode(TrieNode* root, const char* prefix)
 
     return current;
 }
-
 
 // AUTO-COMPLETE HELPER
 
@@ -84,7 +95,6 @@ void autocompleteHelper(
     }
 }
 
-
 // DISPLAY SUGGESTIONS
 
 void DisplaySuggestions()
@@ -104,7 +114,6 @@ void DisplaySuggestions()
         );
     }
 }
-
 
 // AUTO-COMPLETE
 
@@ -144,6 +153,13 @@ void autocomplete(
         prefixNode,
         word,
         level
+    );
+
+    qsort(
+        suggestions,
+        suggestionCount,
+        sizeof(WordFrequency),
+        compareSuggestions
     );
 
     DisplaySuggestions();
