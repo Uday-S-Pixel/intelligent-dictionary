@@ -5,4 +5,12 @@
 
 void loadDictionary(TrieNode* root, const char* filename);
 
+int wordExists(const char* filename, const char* newWord);
+
+void addWordToDictionary(
+    TrieNode* root,
+    const char* filename,
+    const char* newWord
+);
+
 #endif
