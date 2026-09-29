@@ -50,7 +50,6 @@ void addWordToDictionary(
             "\"%s\" already exists in the dictionary.\n",
             newWord
         );
-        Insert(root, newWord);
         return;
     }
     FILE* file = fopen(filename, "a");
