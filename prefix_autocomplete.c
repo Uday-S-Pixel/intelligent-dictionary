@@ -2,42 +2,32 @@
 #include <stdlib.h>
 #include <string.h>
 #include "prefix_autocomplete.h"
-#include "trie.h"
-
-typedef struct
-{
-    char word[100];
-    int frequency;
-
-} WordFrequency;
-
-#define MAX_SUGGESTIONS 1000
-
-WordFrequency suggestions[MAX_SUGGESTIONS];
-
-int suggestionCount = 0;
-
-int compareSuggestions(const void* a, const void* b)
-{
-    const WordFrequency* suggestionA =
-        (const WordFrequency*)a;
-
-    const WordFrequency* suggestionB =
-        (const WordFrequency*)b;
-
-    return suggestionB->frequency -
-           suggestionA->frequency;
-}
-
-// PREFIX SEARCH
+#include "frequency_ranking.h"
 
 TrieNode* findPrefixNode(TrieNode* root, const char* prefix)
 {
+    if (root == NULL || prefix == NULL)
+    {
+        return NULL;
+    }
+
     TrieNode* current = root;
 
     while (*prefix != '\0')
     {
-        int i = *prefix - 'a';
+        char ch = *prefix;
+
+        if (ch >= 'A' && ch <= 'Z')
+        {
+            ch = (char)(ch - 'A' + 'a');
+        }
+
+        if (ch < 'a' || ch > 'z')
+        {
+            return NULL;
+        }
+
+        int i = ch - 'a';
 
         if (current->children[i] == NULL)
         {
@@ -45,62 +35,126 @@ TrieNode* findPrefixNode(TrieNode* root, const char* prefix)
         }
 
         current = current->children[i];
-
         prefix++;
     }
 
     return current;
 }
 
-// AUTO-COMPLETE HELPER
-
 void autocompleteHelper(
     TrieNode* root,
     TrieNode* node,
     char* word,
-    int level
+    int level,
+    Suggestion suggestions[],
+    int* suggestionCount,
+    int maxSuggestions
 )
 {
+    if (node == NULL || *suggestionCount >= maxSuggestions)
+    {
+        return;
+    }
+
     if (node->isLeaf)
     {
         word[level] = '\0';
 
-        if (suggestionCount < MAX_SUGGESTIONS)
-        {
-            strcpy(
-                suggestions[suggestionCount].word,
-                word
-            );
-
-            suggestions[suggestionCount].frequency =
-                getFrequency(root, word);
-
-            suggestionCount++;
-        }
+        strcpy(suggestions[*suggestionCount].word, word);
+        suggestions[*suggestionCount].frequency = getFrequency(root, word);
+        (*suggestionCount)++;
     }
 
     for (int i = 0; i < 26; i++)
     {
         if (node->children[i] != NULL)
         {
-            word[level] = 'a' + i;
+            word[level] = (char)('a' + i);
 
             autocompleteHelper(
                 root,
                 node->children[i],
                 word,
-                level + 1
+                level + 1,
+                suggestions,
+                suggestionCount,
+                maxSuggestions
             );
         }
     }
 }
 
-// DISPLAY SUGGESTIONS
-
-void DisplaySuggestions()
+int collectSuggestions(
+    TrieNode* root,
+    const char* prefix,
+    Suggestion suggestions[],
+    int maxSuggestions
+)
 {
-    printf("\n");
-    printf("====================================\n");
+    if (root == NULL || prefix == NULL || suggestions == NULL || maxSuggestions <= 0)
+    {
+        return 0;
+    }
+
+    TrieNode* prefixNode = findPrefixNode(root, prefix);
+
+    if (prefixNode == NULL)
+    {
+        return 0;
+    }
+
+    char word[MAX_WORD_LENGTH];
+    int level = 0;
+
+    while (prefix[level] != '\0' && level < MAX_WORD_LENGTH - 1)
+    {
+        char ch = prefix[level];
+
+        if (ch >= 'A' && ch <= 'Z')
+        {
+            ch = (char)(ch - 'A' + 'a');
+        }
+
+        word[level] = ch;
+        level++;
+    }
+
+    word[level] = '\0';
+
+    int suggestionCount = 0;
+
+    autocompleteHelper(
+        root,
+        prefixNode,
+        word,
+        level,
+        suggestions,
+        &suggestionCount,
+        maxSuggestions
+    );
+
+    return suggestionCount;
+}
+
+void autocomplete(TrieNode* root, const char* prefix)
+{
+    Suggestion suggestions[MAX_SUGGESTIONS];
+    int suggestionCount = collectSuggestions(
+        root,
+        prefix,
+        suggestions,
+        MAX_SUGGESTIONS
+    );
+
+    if (suggestionCount == 0)
+    {
+        printf("No words found for prefix \"%s\".\n", prefix);
+        return;
+    }
+
+    rankSuggestions(suggestions, suggestionCount);
+
+    printf("\n====================================\n");
     printf("AUTO-COMPLETE SUGGESTIONS\n");
     printf("====================================\n");
 
@@ -113,54 +167,4 @@ void DisplaySuggestions()
             suggestions[i].frequency
         );
     }
-}
-
-// AUTO-COMPLETE
-
-void autocomplete(
-    TrieNode* root,
-    const char* prefix
-)
-{
-    suggestionCount = 0;
-
-    TrieNode* prefixNode =
-        findPrefixNode(root, prefix);
-
-    if (prefixNode == NULL)
-    {
-        printf(
-            "No words found for prefix \"%s\"\n",
-            prefix
-        );
-
-        return;
-    }
-
-    char word[100];
-
-    int level = 0;
-
-    while (prefix[level] != '\0')
-    {
-        word[level] = prefix[level];
-
-        level++;
-    }
-
-    autocompleteHelper(
-        root,
-        prefixNode,
-        word,
-        level
-    );
-
-    qsort(
-        suggestions,
-        suggestionCount,
-        sizeof(WordFrequency),
-        compareSuggestions
-    );
-
-    DisplaySuggestions();
 }
