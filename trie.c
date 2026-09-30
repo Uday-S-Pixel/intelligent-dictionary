@@ -3,96 +3,146 @@
 #include <stdlib.h>
 #include "trie.h"
 
-TrieNode* createNode() {
+static int getIndex(char ch)
+{
+    if (ch >= 'A' && ch <= 'Z')
+    {
+        ch = (char)(ch - 'A' + 'a');
+    }
 
-  // Allocate memory for one TrieNode
-  TrieNode* node = malloc(sizeof(TrieNode));
+    if (ch < 'a' || ch > 'z')
+    {
+        return -1;
+    }
 
-  // Initially, no word ends at this node
-  node -> isLeaf = false;
-  node -> frequency = 0;
+    return ch - 'a';
+}
 
-  // Initially, this node has no child nodes.
-  // Set all 26 child pointers to NULL.
-  for (int i = 0; i < 26; i++) {
-    node -> children[i] = NULL;
-  }
+TrieNode* createNode(void)
+{
+    TrieNode* node = malloc(sizeof(TrieNode));
+
+    if (node == NULL)
+    {
+        return NULL;
+    }
+
+    node->isLeaf = false;
+    node->frequency = 0;
+
+    for (int i = 0; i < 26; i++)
+    {
+        node->children[i] = NULL;
+    }
 
     return node;
 }
 
-void Insert(TrieNode* root, const char* word){ 
-    // word is a pointer to the first character of the string.
-    // const means we do not modify the original string.
-
-    // current keeps track of the node we are currently at.
-    TrieNode* current = root; 
- 
-    while(*word != '\0'){ 
-
-    // Convert the current character into an index from 0 to 25.
-    // For example: 'a' - 'a' = 0, 'b' - 'a' = 1, 'c' - 'a' = 2.
-    int i = *word - 'a'; 
- 
-    // If there is no node for this character from the current node,
-    // create a new node.
-    if(current -> children[i] == NULL){ 
-      current -> children[i] = createNode(); 
-    } 
-
-    // Move current to the node corresponding to this character.
-    current = current -> children[i]; 
- 
-    // Move word to the next character in the string.
-    word++; 
-    } 
-
-    // We have reached the end of the word,
-    // so mark this node as the end of a complete word.
-    current -> isLeaf = true; 
-}
-
-bool Search(TrieNode* root, const char* word) {
-
-  // current keeps track of the node we are currently at.
-  TrieNode* current = root; 
- 
-  while(*word != '\0'){ 
-
-  // Convert the current character into an index from 0 to 25.
-  // For example: 'a' - 'a' = 0, 'b' - 'a' = 1, 'c' - 'a' = 2.
-  int i = *word - 'a'; 
- 
-  // If there is no node for this character,
-  // the word does not exist in the Trie.
-  if(current -> children[i] == NULL){ 
-    return false; 
-  } 
-
-  // Move current to the node corresponding to this character.
-  current = current -> children[i]; 
-
-  // Move word to the next character in the string.
-  word++; 
-    } 
-
-  // If isLeaf is true, a complete word ends at this node.
-  // Otherwise, the given word is only a prefix of another word.
-  if(current -> isLeaf){
-    current -> frequency++;
-    return true;
-  }
-  return false;
-
-int getFrequency(TrieNode* root, const char* word)
+void Insert(TrieNode* root, const char* word)
 {
+    if (root == NULL || word == NULL || *word == '\0')
+    {
+        return;
+    }
+
     TrieNode* current = root;
 
     while (*word != '\0')
     {
-        int i = *word - 'a';
+        int i = getIndex(*word);
+
+        if (i == -1)
+        {
+            return;
+        }
 
         if (current->children[i] == NULL)
+        {
+            current->children[i] = createNode();
+
+            if (current->children[i] == NULL)
+            {
+                return;
+            }
+        }
+
+        current = current->children[i];
+        word++;
+    }
+
+    current->isLeaf = true;
+}
+
+bool Search(TrieNode* root, const char* word)
+{
+    if (root == NULL || word == NULL || *word == '\0')
+    {
+        return false;
+    }
+
+    TrieNode* current = root;
+
+    while (*word != '\0')
+    {
+        int i = getIndex(*word);
+
+        if (i == -1 || current->children[i] == NULL)
+        {
+            return false;
+        }
+
+        current = current->children[i];
+        word++;
+    }
+
+    if (current->isLeaf)
+    {
+        current->frequency++;
+        return true;
+    }
+
+    return false;
+}
+
+bool containsWord(TrieNode* root, const char* word)
+{
+    if (root == NULL || word == NULL || *word == '\0')
+    {
+        return false;
+    }
+
+    TrieNode* current = root;
+
+    while (*word != '\0')
+    {
+        int i = getIndex(*word);
+
+        if (i == -1 || current->children[i] == NULL)
+        {
+            return false;
+        }
+
+        current = current->children[i];
+        word++;
+    }
+
+    return current->isLeaf;
+}
+
+int getFrequency(TrieNode* root, const char* word)
+{
+    if (root == NULL || word == NULL || *word == '\0')
+    {
+        return 0;
+    }
+
+    TrieNode* current = root;
+
+    while (*word != '\0')
+    {
+        int i = getIndex(*word);
+
+        if (i == -1 || current->children[i] == NULL)
         {
             return 0;
         }
@@ -107,4 +157,90 @@ int getFrequency(TrieNode* root, const char* word)
     }
 
     return 0;
+}
+
+static bool deleteHelper(TrieNode* node, const char* word, int level)
+{
+    if (word[level] == '\0')
+    {
+        if (!node->isLeaf)
+        {
+            return false;
+        }
+
+        node->isLeaf = false;
+        node->frequency = 0;
+
+        for (int i = 0; i < 26; i++)
+        {
+            if (node->children[i] != NULL)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    int i = getIndex(word[level]);
+
+    if (i == -1 || node->children[i] == NULL)
+    {
+        return false;
+    }
+
+    TrieNode* child = node->children[i];
+    bool deleteChild = deleteHelper(child, word, level + 1);
+
+    if (deleteChild)
+    {
+        free(child);
+        node->children[i] = NULL;
+    }
+
+    if (node->isLeaf)
+    {
+        return false;
+    }
+
+    for (int j = 0; j < 26; j++)
+    {
+        if (node->children[j] != NULL)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool deleteWord(TrieNode* root, const char* word)
+{
+    if (root == NULL || word == NULL || *word == '\0')
+    {
+        return false;
+    }
+
+    if (!containsWord(root, word))
+    {
+        return false;
+    }
+
+    deleteHelper(root, word, 0);
+    return true;
+}
+
+void freeTrie(TrieNode* root)
+{
+    if (root == NULL)
+    {
+        return;
+    }
+
+    for (int i = 0; i < 26; i++)
+    {
+        freeTrie(root->children[i]);
+    }
+
+    free(root);
 }
