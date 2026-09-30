@@ -3,161 +3,52 @@
 #include <string.h>
 #include "frequency_ranking.h"
 
-// =====================================================
-// FREQUENCY RECORD
-// =====================================================
-
-typedef struct
+static int compareFrequency(const void* a, const void* b)
 {
-    char word[100];
-    int frequency;
+    const Suggestion* suggestionA = (const Suggestion*)a;
+    const Suggestion* suggestionB = (const Suggestion*)b;
 
-} WordFrequency;
-
-
-// Array to store word frequencies
-WordFrequency frequencyList[1000];
-
-int frequencyCount = 0;
-
-
-// =====================================================
-// FIND WORD IN FREQUENCY LIST
-// =====================================================
-
-int findWord(const char* word)
-{
-    for (int i = 0; i < frequencyCount; i++)
+    if (suggestionA->frequency != suggestionB->frequency)
     {
-        if (strcmp(frequencyList[i].word, word) == 0)
-        {
-            return i;
-        }
+        return suggestionB->frequency - suggestionA->frequency;
     }
 
-    return -1;
+    return strcmp(suggestionA->word, suggestionB->word);
 }
 
-
-// =====================================================
-// ADD WORD TO FREQUENCY LIST
-// =====================================================
-
-void addWord(const char* word)
+void rankSuggestions(Suggestion suggestions[], int suggestionCount)
 {
-    int index = findWord(word);
-
-    // Word already exists
-    if (index != -1)
+    if (suggestions == NULL || suggestionCount <= 1)
     {
         return;
     }
 
-    // Add new word
-    if (frequencyCount < 1000)
-    {
-        strcpy(frequencyList[frequencyCount].word, word);
-        frequencyList[frequencyCount].frequency = 0;
-
-        frequencyCount++;
-    }
-}
-
-
-// =====================================================
-// INCREASE WORD FREQUENCY
-// =====================================================
-
-void increaseFrequency(const char* word)
-{
-    int index = findWord(word);
-
-    // If word is not present, add it
-    if (index == -1)
-    {
-        addWord(word);
-        index = frequencyCount - 1;
-    }
-
-    frequencyList[index].frequency++;
-}
-
-// =====================================================
-// COMPARE WORDS FOR RANKING
-// =====================================================
-
-int compareFrequency(const void* a, const void* b)
-{
-    const WordFrequency* wordA = (const WordFrequency*)a;
-    const WordFrequency* wordB = (const WordFrequency*)b;
-
-    // Higher frequency comes first
-    if (wordA->frequency != wordB->frequency)
-    {
-        return wordB->frequency - wordA->frequency;
-    }
-
-    // If frequency is same,
-    // alphabetical order
-    return strcmp(wordA->word, wordB->word);
-}
-
-
-// =====================================================
-// RANK WORDS
-// =====================================================
-
-void rankWords(void)
-{
     qsort(
-        frequencyList,
-        frequencyCount,
-        sizeof(WordFrequency),
+        suggestions,
+        suggestionCount,
+        sizeof(Suggestion),
         compareFrequency
     );
 }
 
-
-// =====================================================
-// DISPLAY FREQUENCY
-// =====================================================
-
-void displayFrequency(void)
+void displayFrequency(TrieNode* root, const char* word)
 {
-    printf("\n====================================\n");
-    printf("WORD FREQUENCY\n");
-    printf("====================================\n");
-
-    for (int i = 0; i < frequencyCount; i++)
-    {
-        printf(
-            "%s : %d\n",
-            frequencyList[i].word,
-            frequencyList[i].frequency
-        );
-    }
+    printf("%s : %d\n", word, getFrequency(root, word));
 }
 
-
-// =====================================================
-// DISPLAY RANKING
-// =====================================================
-
-void displayRanking(void)
+void displayRanking(Suggestion suggestions[], int suggestionCount)
 {
-    rankWords();
-
     printf("\n====================================\n");
     printf("WORD RANKING\n");
     printf("====================================\n");
 
-    for (int i = 0; i < frequencyCount; i++)
+    for (int i = 0; i < suggestionCount; i++)
     {
         printf(
             "%d. %s (frequency: %d)\n",
             i + 1,
-            frequencyList[i].word,
-            frequencyList[i].frequency
+            suggestions[i].word,
+            suggestions[i].frequency
         );
     }
 }
