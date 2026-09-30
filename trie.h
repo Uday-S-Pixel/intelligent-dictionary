@@ -10,11 +10,11 @@ typedef struct TrieNode {
 } TrieNode;
 
 TrieNode* createNode(void);
-
 void Insert(TrieNode* root, const char* word);
-
 bool Search(TrieNode* root, const char* word);
-
+bool containsWord(TrieNode* root, const char* word);
 int getFrequency(TrieNode* root, const char* word);
+bool deleteWord(TrieNode* root, const char* word);
+void freeTrie(TrieNode* root);
 
 #endif
