@@ -1,16 +1,10 @@
 #ifndef FREQUENCY_RANKING_H
 #define FREQUENCY_RANKING_H
 
-void addWord(const char* word);
+#include "prefix_autocomplete.h"
 
-void increaseFrequency(const char* word);
-
-int getFrequency(const char* word);
-
-void rankWords(void);
-
-void displayFrequency(void);
-
-void displayRanking(void);
+void rankSuggestions(Suggestion suggestions[], int suggestionCount);
+void displayFrequency(TrieNode* root, const char* word);
+void displayRanking(Suggestion suggestions[], int suggestionCount);
 
 #endif
