@@ -1,9 +1,9 @@
-// only for testing purpose 
 #include <stdio.h>
 
 #include "trie.h"
 #include "dictionary.h"
 #include "prefix_autocomplete.h"
+#include "dynamic_input.h"
 
 int main()
 {
@@ -11,7 +11,7 @@ int main()
 
     loadDictionary(root, "dictionary.txt");
 
-    autocomplete(root, "app");
+    dynamicInput(root);
 
     return 0;
 }
